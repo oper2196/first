@@ -1,47 +1,56 @@
 package com.example.demo.controller;
 
 import com.example.demo.cache.Cache;
-import com.example.demo.dao.TestDao;
-import com.example.demo.entity.Test;
+import com.example.demo.dao.Dao;
+import com.example.demo.entity.Account;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 @RestController
 public class MyController {
     Logger logger = LoggerFactory.getLogger(MyController.class);
+    private ObjectMapper mapper = new ObjectMapper();
     @Resource
-    TestDao testDao;
+    Dao dao;
 
     @GetMapping("/get")
     public Object get(){
 
-        Test test = testDao.getData();
+        Account account = dao.getData();
 
-        while(test !=null && Cache.isExist(test.getId())){
-            test = testDao.getData();
+        while(account !=null && Cache.isExist(account.getId())){
+            account = dao.getData();
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        if(test == null)
+        if(account == null)
             return null;
 
-        int affectRows = testDao.updateData(test.getId());
-        logger.info("update affect {} rows",affectRows);
-        return test;
+        int affectRows = dao.updateStatus(account.getId(), 1);
+        logger.info("update affect {} rows", affectRows);
+        return account;
     }
 
-    @RequestMapping(value = "xxxx/{id}", method = RequestMethod.DELETE)
-    public Object update(int id){
-        testDao.deleteData(id);
-        Cache.emailCache.remove(id);
+    @PostMapping(path = "/update")
+    public Object update(@RequestBody Account account) throws JsonProcessingException {
+        String json = mapper.writeValueAsString(account);
+        logger.info("update {}", json);
+        dao.updateData(account.getId(), account.getDetail());
+        Cache.emailCache.remove(account.getId());
+        return null;
+    }
+
+    @GetMapping("/ini/{id}")
+    public Object ini(@PathVariable(name = "id") int id){
+        dao.updateStatus(id, 0);
         return null;
     }
 
