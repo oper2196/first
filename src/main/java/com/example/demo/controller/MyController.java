@@ -43,7 +43,8 @@ public class MyController {
     public Object update(@RequestBody Account account) throws JsonProcessingException {
         String json = mapper.writeValueAsString(account);
         logger.info("update {}", json);
-        dao.updateData(account.getId(), account.getDetail());
+        dao.deleteData(account.getId());
+        dao.saveAccount(account.getEmail(), account.getPassword(), account.getDetail());
         Cache.emailCache.remove(account.getId());
         return null;
     }

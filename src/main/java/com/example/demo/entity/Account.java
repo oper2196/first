@@ -17,8 +17,17 @@ public class Account {
     @Column(name = "email")
     private String email;
 
+    @Column(name = "password")
+    private String password;
+
     @Column(name = "detail")
     private String detail;
+
+    @Column(name = "createtime")
+    private String createTime;
+
+    @Column(name = "updatetime")
+    private String updatetime;
 
     public Integer getId() {
         return id;
@@ -36,11 +45,33 @@ public class Account {
         this.email = email;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public String getDetail() {
         return detail;
     }
 
     public void setDetail(String detail) {
         this.detail = detail;
+    }
+
+    public String getUpdateTime() {
+        return updatetime;
+    }
+
+    public void setUpdateTime(String updatetime) { this.updatetime = updatetime;}
+
+    public String getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(String createTime) {
+        this.createTime = createTime;
     }
 }
