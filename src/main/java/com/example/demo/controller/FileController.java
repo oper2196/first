@@ -2,17 +2,22 @@ package com.example.demo.controller;
 
 import com.example.demo.dao.Dao;
 import com.example.demo.entity.Account;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.example.demo.util.ExcelImportUtils;
 import org.apache.poi.hssf.usermodel.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -66,5 +71,77 @@ public class FileController {
         response.setHeader("Content-disposition", "attachment;filename=" + java.net.URLEncoder.encode(fileName, "UTF-8"));
         response.flushBuffer();
         workbook.write(response.getOutputStream());
+    }
+
+    /**
+     * 导入账号信息
+     * @param file
+     * @return
+     */
+    @RequestMapping(value = "/importExcel")
+    @ResponseBody
+    public String upload(@RequestParam("file") MultipartFile file) {
+        if(file.isEmpty()){
+            return "文件为空！";
+        }
+        InputStream is = null;
+        try
+        {
+            is = file.getInputStream();
+            //获取文件名
+            String fileName = file.getOriginalFilename();
+
+            //根据版本选择创建Workbook的方式
+            Workbook wb = null;
+            Sheet sheetAt = null;
+            //根据文件名判断文件是2003版本还是2007版本
+            if(ExcelImportUtils.isExcel2007(fileName)){
+                wb = new XSSFWorkbook(is);
+                sheetAt = wb.getSheetAt(0);
+            }else{
+                wb = new HSSFWorkbook(is);
+                sheetAt = wb.getSheetAt(0);
+            }
+
+            List<Account> accountList = new ArrayList<Account>();
+
+            for (Row row : sheetAt) {
+                int rowNum = row.getRowNum();
+
+                String info = row.getCell(0).getStringCellValue();//账号和密码信息
+
+
+                //数据封装 ，存到数据库
+                Account account = new Account();
+                String email = info.split("-")[0];
+                String password = info.split("-")[1];
+                account.setEmail(email);
+                account.setPassword(password);
+
+                accountList.add(account);
+            }
+
+            //保存数据到DB
+        if(accountList.size()>0)
+            for (Account account : accountList) {
+                dao.insertEmail(account.getEmail(), account.getPassword());
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            return e.getMessage();
+        }finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return "文件流未关闭";
+                }
+            }
+        }
+
+        return "上传成功";
     }
 }

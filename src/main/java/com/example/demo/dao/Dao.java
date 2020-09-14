@@ -43,4 +43,9 @@ public interface Dao extends CrudRepository<Account,String>, JpaSpecificationExe
     @Modifying
     @Query(value = "INSERT INTO accounts (email, password, detail, pid) VALUES (?1, ?2, ?3, ?4)",nativeQuery = true)
     int saveAccount(String email, String password, String detail, String pid);
+
+    @Transactional
+    @Modifying
+    @Query(value = "INSERT INTO emails (email, password) select ?1, ?2 from dual where not exists (select email from emails where email = ?1)",nativeQuery = true)
+    int insertEmail(String email, String password);
 }
