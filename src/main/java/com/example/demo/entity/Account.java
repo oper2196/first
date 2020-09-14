@@ -29,6 +29,9 @@ public class Account {
     @Column(name = "updatetime")
     private String updatetime;
 
+    @Column(name = "pid")
+    private String pid;
+
     public Integer getId() {
         return id;
     }
@@ -73,5 +76,13 @@ public class Account {
 
     public void setCreateTime(String createTime) {
         this.createTime = createTime;
+    }
+
+    public String getPid() {
+        return pid;
+    }
+
+    public void setPid(String pid) {
+        this.pid = pid;
     }
 }

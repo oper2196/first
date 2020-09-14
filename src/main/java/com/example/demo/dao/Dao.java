@@ -13,16 +13,21 @@ import java.util.List;
 @Component
 public interface Dao extends CrudRepository<Account,String>, JpaSpecificationExecutor {
 
-    @Query(value = "select * from emails where status = 0 and HOUR( timediff( now(), updatetime) ) >= 24 LIMIT 1",nativeQuery = true)
+    @Query(value = "select * from emails where status = 0 and (HOUR( timediff( now(), updatetime) ) >= 24 or updatetime is NULL) LIMIT 1",nativeQuery = true)
     Account getData();
 
-    @Query(value = "select * from accounts",nativeQuery = true)
-    List<Account> getAccounts();
+    @Query(value = "select * from accounts where createtime >= ?1 and createtime < ?2",nativeQuery = true)
+    List<Account> getAccounts(String startTime, String endTime);
 
     @Transactional
     @Modifying
     @Query(value = "delete from emails where id= ?1 ",nativeQuery = true)
-    int deleteData(int id);
+    int deleteEmail(int id);
+
+    @Transactional
+    @Modifying
+    @Query(value = "delete from accounts where createtime >= ?1 and createtime < ?2",nativeQuery = true)
+    int deleteAccount(String startTime, String endTime);
 
     @Transactional
     @Modifying
@@ -36,6 +41,6 @@ public interface Dao extends CrudRepository<Account,String>, JpaSpecificationExe
 
     @Transactional
     @Modifying
-    @Query(value = "INSERT INTO accounts (email, password, detail) VALUES (?1, ?2, ?3)",nativeQuery = true)
-    int saveAccount(String email, String password, String detail);
+    @Query(value = "INSERT INTO accounts (email, password, detail, pid) VALUES (?1, ?2, ?3, ?4)",nativeQuery = true)
+    int saveAccount(String email, String password, String detail, String pid);
 }

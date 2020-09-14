@@ -2,10 +2,12 @@ package com.example.demo.controller;
 
 import com.example.demo.dao.Dao;
 import com.example.demo.entity.Account;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.poi.hssf.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -23,10 +25,12 @@ public class FileController {
     Dao dao;
 
     @RequestMapping(value = "export")
-    public void Export(HttpServletResponse response) throws IOException {
+    public void Export(@RequestParam String startTime , @RequestParam String endTime ,HttpServletResponse response) throws IOException {
+        System.out.println(startTime);
+        System.out.println(endTime);
         HSSFWorkbook workbook = new HSSFWorkbook();
         HSSFSheet sheet = workbook.createSheet("信息表");
-        List<Account> AccountList = dao.getAccounts();
+        List<Account> AccountList = dao.getAccounts(startTime, endTime);
 
         Date date=new Date();//此时date为当前的时间
         SimpleDateFormat dateFormat=new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");//设置当前时间的格

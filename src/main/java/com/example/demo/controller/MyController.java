@@ -43,8 +43,8 @@ public class MyController {
     public Object update(@RequestBody Account account) throws JsonProcessingException {
         String json = mapper.writeValueAsString(account);
         logger.info("update {}", json);
-        dao.deleteData(account.getId());
-        dao.saveAccount(account.getEmail(), account.getPassword(), account.getDetail());
+        dao.saveAccount(account.getEmail(), account.getPassword(), account.getDetail(), account.getPid());
+        dao.deleteEmail(account.getId());
         Cache.emailCache.remove(account.getId());
         return null;
     }
@@ -53,6 +53,12 @@ public class MyController {
     public Object ini(@PathVariable(name = "id") int id){
         dao.updateStatus(id, 0);
         return null;
+    }
+
+    @GetMapping("/delete")
+    public String ini(String startTime ,String endTime ){
+        dao.deleteAccount(startTime, endTime);
+        return "删除成功";
     }
 
 }
