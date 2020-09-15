@@ -48,7 +48,7 @@ public class FileController {
         int rowNum = 1;
 
         // headers表示excel表中第一行的表头 在excel表中添加表头
-        String[] headers = { "ID", "邮箱", "密码", "备注", "创建时间"};
+        String[] headers = { "ID", "邮箱", "密码", "备注", "手机编号", "创建时间"};
         HSSFRow row = sheet.createRow(0);
         for(int i=0;i<headers.length;i++){
             HSSFCell cell = row.createCell(i);
@@ -63,7 +63,8 @@ public class FileController {
             row1.createCell(1).setCellValue(item.getEmail());
             row1.createCell(2).setCellValue(item.getPassword());
             row1.createCell(3).setCellValue(item.getDetail());
-            row1.createCell(4).setCellValue(item.getCreateTime());
+            row1.createCell(4).setCellValue(item.getPid());
+            row1.createCell(5).setCellValue(item.getCreateTime());
             rowNum++;
         }
 
