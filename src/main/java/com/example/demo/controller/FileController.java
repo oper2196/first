@@ -114,8 +114,8 @@ public class FileController {
 
                 //数据封装 ，存到数据库
                 Account account = new Account();
-                String email = info.split("-")[0];
-                String password = info.split("-")[1];
+                String email = info.split("----")[0];
+                String password = info.split("----")[1];
                 account.setEmail(email);
                 account.setPassword(password);
 
