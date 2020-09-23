@@ -39,24 +39,23 @@ public class MyController {
         return account;
     }
 
-    @PostMapping(path = "/update")
-    public Object update(@RequestBody Account account) throws JsonProcessingException {
-        String json = mapper.writeValueAsString(account);
-        logger.info("update {}", json);
-        dao.saveAccount(account.getEmail(), account.getPassword(), account.getDetail(), account.getPid());
-        dao.deleteEmail(account.getId());
-        Cache.emailCache.remove(account.getId());
-        return null;
+    @GetMapping(path = "/update")
+    public String update(Integer id ,String email ,String password, String detail ,String pid) throws JsonProcessingException {
+        System.out.println(id);
+        dao.saveAccount(email, password, detail, pid);
+        dao.deleteEmail(id);
+        Cache.emailCache.remove(id);
+        return "更新成功";
     }
 
     @GetMapping("/ini/{id}")
-    public Object ini(@PathVariable(name = "id") int id){
+    public String ini(@PathVariable(name = "id") int id){
         dao.updateStatus(id, 0);
-        return null;
+        return "初始化成功";
     }
 
     @GetMapping("/delete")
-    public String ini(String startTime ,String endTime ){
+    public String ini(String startTime ,String endTime){
         dao.deleteAccount(startTime, endTime);
         return "删除成功";
     }
