@@ -38,7 +38,7 @@ public class QueryNoticeListAction {
         String endTime = dateFormat.format(lastData) + " 23:59:59";
         List<Account> AccountList = dao.getAccounts(startTime, endTime);
         // 设置要导出的文件的名字
-        String fileName = "账号列表-"  + dateFormat.format(date) + ".xls";
+        String fileName = "账号列表-"  + dateFormat.format(date) + ".xlsx";
 
         //创建文件夹和文件名
         String locDir = "d:/accounts/";
