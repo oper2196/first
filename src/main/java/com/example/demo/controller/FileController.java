@@ -82,6 +82,21 @@ public class FileController {
     @RequestMapping(value = "/importExcel")
     @ResponseBody
     public String upload(@RequestParam("file") MultipartFile file) {
+        return uploadMethod(file, "ios");
+    }
+
+    /**
+     * 导入账号信息（安卓）
+     * @param file
+     * @return
+     */
+    @RequestMapping(value = "/android/importExcel")
+    @ResponseBody
+    public String uploadAndroid(@RequestParam("file") MultipartFile file) {
+        return uploadMethod(file,"android");
+    }
+
+    public String uploadMethod(MultipartFile file, String type) {
         if(file.isEmpty()){
             return "文件为空！";
         }
@@ -123,10 +138,14 @@ public class FileController {
             }
 
             //保存数据到DB
-        if(accountList.size()>0)
-            for (Account account : accountList) {
-                dao.insertEmail(account.getEmail(), account.getPassword());
-            }
+            if(accountList.size()>0)
+                for (Account account : accountList) {
+                    if (type.equals("ios")) {
+                        dao.insertEmail(account.getEmail(), account.getPassword());
+                    } else {
+                        dao.insertEmail_android(account.getEmail(), account.getPassword());
+                    }
+                }
         }
         catch (IOException e)
         {
@@ -145,4 +164,6 @@ public class FileController {
 
         return "上传成功";
     }
+
+
 }
