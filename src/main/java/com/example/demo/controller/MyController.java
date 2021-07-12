@@ -18,10 +18,21 @@ public class MyController {
     @Resource
     Dao dao;
 
-    @GetMapping("/get")
-    public Object get(){
 
-        Account account = dao.getData();
+    // status 0: 初始状态，可使用; 1：正在使用; 2: 使用过，可再次使用
+
+    @GetMapping("/get/{status}")
+    public Object get(@PathVariable(name = "status") int status){
+        Account account;
+        String updateTime = null;
+        if (status == 0) {
+            account = dao.getData();
+        } else {
+            account = dao.getIniAccount();
+            if (account != null) {
+                updateTime = account.getUpdateTime();
+            }
+        }
 
         while(account !=null && Cache.isExist(account.getId())){
             account = dao.getData();
@@ -35,14 +46,25 @@ public class MyController {
             return null;
 
         int affectRows = dao.updateStatus(account.getId(), 1);
+        if (status == 0) {
+            dao.setUpdateTime(account.getId(), null);
+        } else {
+            dao.setUpdateTime(account.getId(), updateTime);
+        }
         logger.info("update affect {} rows", affectRows);
         return account;
     }
 
-    @GetMapping("/android/get")
-    public Object get_android(){
-
-        Account account = dao.getData_android();
+    @GetMapping("/android/get/{status}")
+    public Object get_android(@PathVariable(name = "status") int status){
+        Account account = null;
+        String updateTime = null;
+        if (status == 0) {
+            account = dao.getData_android();
+        } else {
+            account = dao.getIniAccount_android();
+            updateTime = account.getUpdateTime();
+        }
 
         while(account !=null && Cache.isExist(account.getId())){
             account = dao.getData_android();
@@ -56,6 +78,11 @@ public class MyController {
             return null;
 
         int affectRows = dao.updateStatus_android(account.getId(), 1);
+        if (status == 0) {
+            dao.setUpdateTime_android(account.getId(), null);
+        } else {
+            dao.setUpdateTime_android(account.getId(), updateTime);
+        }
         logger.info("update affect {} rows", affectRows);
         return account;
     }
@@ -63,8 +90,13 @@ public class MyController {
     @GetMapping(path = "/update")
     public String update(Integer id ,String email ,String password, String detail ,String pid) throws JsonProcessingException {
         System.out.println(id);
-        dao.saveAccount(email, password, detail, pid);
-        dao.deleteEmail(id);
+        Account account = dao.getAccountByEmail(email);
+        if (account == null) {
+            dao.saveAccount(email, password, detail, pid);
+        } else {
+            dao.updateAccount(email, password, detail, pid);
+        }
+        dao.updateStatus(id,2);
         Cache.emailCache.remove(id);
         return "更新成功";
     }
@@ -73,7 +105,7 @@ public class MyController {
     public String update_hs(Integer id ,String email ,String password, String detail ,String pid) throws JsonProcessingException {
         System.out.println(id);
         dao.saveAccount_hs(email, password, detail, pid);
-        dao.deleteEmail(id);
+        dao.updateStatus_hs(id, 2);
         Cache.emailCache.remove(id);
         return "更新成功";
     }
@@ -81,8 +113,13 @@ public class MyController {
     @GetMapping(path = "/android/update")
     public String update_android(Integer id ,String email ,String password, String detail ,String pid) throws JsonProcessingException {
         System.out.println(id);
-        dao.saveAccount_android(email, password, detail, pid);
-        dao.deleteEmail_android(id);
+        Account account = dao.getAccountByEmail_android(email);
+        if (account == null) {
+            dao.saveAccount_android(email, password, detail, pid);
+        } else {
+            dao.updateAccount_android(email, password, detail, pid);
+        }
+        dao.updateStatus_android(id, 2);
         Cache.emailCache.remove(id);
         return "更新成功";
     }
