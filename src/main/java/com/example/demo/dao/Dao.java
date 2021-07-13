@@ -13,10 +13,23 @@ import java.util.List;
 @Component
 public interface Dao extends CrudRepository<Account,String>, JpaSpecificationExecutor {
 
-    @Query(value = "select * from emails where status = 0 and (HOUR( timediff( now(), updatetime) ) >= 24 or updatetime is NULL) LIMIT 1",nativeQuery = true)
+
+    @Query(value = "select * from accounts where email = ?1",nativeQuery = true)
+    Account getAccountByEmail(String email);
+
+    @Query(value = "select * from accounts_android where email = ?1",nativeQuery = true)
+    Account getAccountByEmail_android(String email);
+
+    @Query(value = "select * from emails where status = 2 and  TIMESTAMPDIFF(SECOND ,CONCAT( CURDATE(),' 00:00:00'),updatetime) <= 0 LIMIT 1",nativeQuery = true)
+    Account getIniAccount();
+
+    @Query(value = "select * from emails_android where status = 2 and  TIMESTAMPDIFF(SECOND ,CONCAT( CURDATE(),' 00:00:00'),updatetime) <= 0 LIMIT 1",nativeQuery = true)
+    Account getIniAccount_android();
+
+    @Query(value = "select * from emails where status = 0 LIMIT 1",nativeQuery = true)
     Account getData();
 
-    @Query(value = "select * from emails_android where status = 0 and (HOUR( timediff( now(), updatetime) ) >= 24 or updatetime is NULL) LIMIT 1",nativeQuery = true)
+    @Query(value = "select * from emails_android where status = 0 LIMIT 1",nativeQuery = true)
     Account getData_android();
 
     @Query(value = "select * from accounts where createtime >= ?1 and createtime < ?2",nativeQuery = true)
@@ -50,6 +63,11 @@ public interface Dao extends CrudRepository<Account,String>, JpaSpecificationExe
     @Transactional
     @Modifying
     @Query(value = "update emails_android set status = ?2 where id= ?1 ",nativeQuery = true)
+    int updateStatus_hs(int id, int status);
+
+    @Transactional
+    @Modifying
+    @Query(value = "update emails_android set status = ?2 where id= ?1 ",nativeQuery = true)
     int updateStatus_android(int id, int status);
 
     @Transactional
@@ -61,6 +79,16 @@ public interface Dao extends CrudRepository<Account,String>, JpaSpecificationExe
     @Modifying
     @Query(value = "INSERT INTO accounts (email, password, detail, pid) VALUES (?1, ?2, ?3, ?4)",nativeQuery = true)
     int saveAccount(String email, String password, String detail, String pid);
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE accounts set email = ?1, password = ?2, detail = ?3, pid = ?4 where email = ?1",nativeQuery = true)
+    int updateAccount(String email, String password, String detail, String pid);
+
+    @Transactional
+    @Modifying
+    @Query(value = "update accounts_android set email = ?1, password = ?2, detail = ?3, pid = 4) where email = ?1",nativeQuery = true)
+    int updateAccount_android(String email, String password, String detail, String pid);
 
     @Transactional
     @Modifying
@@ -81,4 +109,14 @@ public interface Dao extends CrudRepository<Account,String>, JpaSpecificationExe
     @Modifying
     @Query(value = "INSERT INTO emails_android (email, password) select ?1, ?2 from dual where not exists (select email from emails_android where email = ?1)",nativeQuery = true)
     int insertEmail_android(String email, String password);
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE emails SET updatetime = ?2 where id= ?1 ",nativeQuery = true)
+    int setUpdateTime(int id, String updatetime);
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE emails_android SET updatetime = ?2 where id= ?1 ",nativeQuery = true)
+    int setUpdateTime_android(int id, String updatetime);
 }
