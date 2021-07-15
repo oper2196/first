@@ -14,6 +14,26 @@ import java.util.List;
 public interface Dao extends CrudRepository<Account,String>, JpaSpecificationExecutor {
 
 
+    @Transactional
+    @Modifying
+    @Query(value = "update accounts set user = ?2, selled=1 where id= ?1 ",nativeQuery = true)
+    int record(int id, String user);
+
+    @Query(value = "select id,detail,price,pricesell,'' as password ,email, '' as createtime,'' as  updatetime , '' as status, '' as user, '' as pid  from accounts where id = ?1 ",nativeQuery = true)
+    Account getEmail(int id);
+
+    @Query(value = "select user from users where user = ?1 and password =?2 ",nativeQuery = true)
+    String check(String user, String password);
+
+    @Query(value = "select detail from accounts where detail LIKE :name order by price ",nativeQuery = true)
+    List<String> getHeros(String name);
+
+    @Query(value = "select id,detail,price,pricesell,password ,email, '' as createtime,'' as  updatetime , '' as status, '' as user, '' as pid  from accounts where detail LIKE ?1 and  detail LIKE ?2 order by price ",nativeQuery = true)
+    List<Account> getShow2(String name, String name2);
+
+    @Query(value = "select id,detail,price,pricesell,'' as password ,'' as email, '' as createtime,'' as  updatetime , '' as status, '' as user, '' as pid  from accounts where detail LIKE :name order by price ",nativeQuery = true)
+    List<Account> getShow(String name);
+
     @Query(value = "select * from accounts where email = ?1",nativeQuery = true)
     Account getAccountByEmail(String email);
 
@@ -77,13 +97,13 @@ public interface Dao extends CrudRepository<Account,String>, JpaSpecificationExe
 
     @Transactional
     @Modifying
-    @Query(value = "INSERT INTO accounts (email, password, detail, pid) VALUES (?1, ?2, ?3, ?4)",nativeQuery = true)
-    int saveAccount(String email, String password, String detail, String pid);
+    @Query(value = "INSERT INTO accounts (email, password, detail, pid,status) VALUES (?1, ?2, ?3, ?4,?5)",nativeQuery = true)
+    int saveAccount(String email, String password, String detail, String pid, int status);
 
     @Transactional
     @Modifying
-    @Query(value = "UPDATE accounts set email = ?1, password = ?2, detail = ?3, pid = ?4 where email = ?1",nativeQuery = true)
-    int updateAccount(String email, String password, String detail, String pid);
+    @Query(value = "UPDATE accounts set email = ?1, password = ?2, detail = ?3, pid = ?4, status=?5 where email = ?1",nativeQuery = true)
+    int updateAccount(String email, String password, String detail, String pid, int status);
 
     @Transactional
     @Modifying

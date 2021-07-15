@@ -32,6 +32,15 @@ public class Account {
     @Column(name = "pid")
     private String pid;
 
+    @Column(name = "user")
+    private String user;
+
+    @Column(name = "price")
+    private String price;
+
+    @Column(name = "pricesell")
+    private String pricesell;
+
     public Integer getId() {
         return id;
     }
@@ -85,4 +94,16 @@ public class Account {
     public void setPid(String pid) {
         this.pid = pid;
     }
+
+    public String getUser() {return user;}
+
+    public void setUser(String user) {this.user = user; }
+
+    public String getPrice() {return price;}
+
+    public void setPrice(String price) {this.price = price; }
+
+    public String getPriceSell() {return pricesell;}
+
+    public void setPriceSell(String pricesell) {this.pricesell = pricesell; }
 }

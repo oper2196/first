@@ -3,15 +3,15 @@
 
  Source Server         : cp
  Source Server Type    : MySQL
- Source Server Version : 80021
+ Source Server Version : 80022
  Source Host           : localhost:3306
  Source Schema         : cp
 
  Target Server Type    : MySQL
- Target Server Version : 80021
+ Target Server Version : 80022
  File Encoding         : 65001
 
- Date: 16/09/2020 09:23:03
+ Date: 15/07/2021 17:56:46
 */
 
 SET NAMES utf8mb4;
@@ -32,6 +32,6 @@ CREATE TABLE `emails`  (
   `pid` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   PRIMARY KEY (`id`, `email`) USING BTREE,
   UNIQUE INDEX `email`(`email`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 189 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 193 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;

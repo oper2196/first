@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @RestController
 public class MyController {
@@ -88,13 +89,13 @@ public class MyController {
     }
 
     @GetMapping(path = "/update")
-    public String update(Integer id ,String email ,String password, String detail ,String pid) throws JsonProcessingException {
+    public String update(Integer id ,String email ,String password, String detail ,String pid,int status) throws JsonProcessingException {
         System.out.println(id);
         Account account = dao.getAccountByEmail(email);
         if (account == null) {
-            dao.saveAccount(email, password, detail, pid);
+            dao.saveAccount(email, password, detail, pid, status);
         } else {
-            dao.updateAccount(email, password, detail, pid);
+            dao.updateAccount(email, password, detail, pid, status);
         }
         dao.updateStatus(id,2);
         Cache.emailCache.remove(id);
@@ -146,6 +147,40 @@ public class MyController {
     public String delete_hs(String startTime ,String endTime){
         dao.deleteAccount_hs(startTime, endTime);
         return "删除成功";
+    }
+
+    @GetMapping("/getList")
+    @ResponseBody
+    public Object getList(String name, String fullName ) throws JsonProcessingException {
+        String _name = '%'+name +'%';
+        List<Account> accounts;
+        if (fullName != null && fullName.length() != 0) {
+            String _name2 = '%'+fullName +'%';
+            accounts = dao.getShow2(_name,_name2 );
+        } else {
+            accounts = dao.getShow(_name);
+        }
+        return accounts;
+    }
+
+    @GetMapping("/getHeros")
+    @ResponseBody
+    public Object getHeros(String name ) throws JsonProcessingException {
+        String _name = '%'+name +'%';
+        List<String> accounts = dao.getHeros(_name);
+        return accounts;
+    }
+
+    @GetMapping("/getEmail")
+    @ResponseBody
+    public Object getEmail(int id, String user, String password ) throws JsonProcessingException {
+        String userId = dao.check(user, password);
+        if (userId != null && userId.length() != 0) {
+            Account accounts = dao.getEmail(id);
+            dao.record(id, user);
+            return accounts;
+        }
+        return null;
     }
 
 }
