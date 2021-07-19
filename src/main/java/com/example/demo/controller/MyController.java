@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @RestController
 public class MyController {
@@ -88,13 +89,19 @@ public class MyController {
     }
 
     @GetMapping(path = "/update")
-    public String update(Integer id ,String email ,String password, String detail ,String pid) throws JsonProcessingException {
+    public String update(Integer id ,String email ,String password, String detail ,String pid,Integer status) throws JsonProcessingException {
         System.out.println(id);
         Account account = dao.getAccountByEmail(email);
-        if (account == null) {
-            dao.saveAccount(email, password, detail, pid);
+        int _status = 0;
+        if (status == null) {
+            _status = 0;
         } else {
-            dao.updateAccount(email, password, detail, pid);
+            _status = status;
+        }
+        if (account == null) {
+            dao.saveAccount(email, password, detail, pid, _status);
+        } else {
+            dao.updateAccount(email, password, detail, pid, _status);
         }
         dao.updateStatus(id,2);
         Cache.emailCache.remove(id);
@@ -146,6 +153,79 @@ public class MyController {
     public String delete_hs(String startTime ,String endTime){
         dao.deleteAccount_hs(startTime, endTime);
         return "删除成功";
+    }
+
+    @GetMapping("/getList")
+    @ResponseBody
+    public Object getList(String name, String fullName, String phone ) throws JsonProcessingException {
+        String _name = '%'+name +'%';
+        List<Account> accounts;
+        if (phone == "") {
+            return null;
+        }
+        if (fullName != null && fullName.length() != 0) {
+            String _name2 = '%'+fullName +'%';
+            // if (phone.equals( "18202823159") || ) {
+            //    accounts = dao.getShow2_all(_name,_name2 );
+            // }else
+                if (phone.equals( "太郎宅") || phone.equals( "苏剑夫淘宝")){
+                accounts = dao.getShow2(_name,_name2,1 );
+            } else {
+                accounts = dao.getShow2(_name,_name2,0 );
+
+            }
+        } else {
+            //if (phone.equals( "18202823159")) {
+             //   accounts = dao.getShow_all(_name);
+            //}else
+                if (phone.equals( "太郎宅") || phone.equals( "苏剑夫淘宝")){
+                accounts = dao.getShow(_name,1 );
+            } else {
+                accounts = dao.getShow(_name,0 );
+            }
+        }
+        return accounts;
+    }
+
+    @GetMapping("/getHeros")
+    @ResponseBody
+    public Object getHeros(String name ) throws JsonProcessingException {
+        String _name = '%'+name +'%';
+        List<String> accounts = dao.getHeros(_name);
+        return accounts;
+    }
+
+    @GetMapping("/getEmail")
+    @ResponseBody
+    public Object getEmail(int id, String user, String password ) throws JsonProcessingException {
+        String userId = dao.check(user, password);
+        if (userId != null && userId.length() != 0) {
+            Account account = dao.getEmail(id);
+            if (account == null) {
+                return null;
+            }
+            dao.record(id, user);
+            dao.updateStatusByEmail(account.getEmail(),3);
+            return account;
+        }
+        return null;
+    }
+
+    @GetMapping("/login")
+    @ResponseBody
+    public String login(String user, String password ) throws JsonProcessingException {
+        String userId = dao.check(user, password);
+        return userId;
+    }
+    @GetMapping("/getHistory")
+    @ResponseBody
+    public Object getHistory(String user, String password ) throws JsonProcessingException {
+        String userId = dao.check(user, password);
+        if (userId != null && userId.length() != 0) {
+            List<Account> accounts = dao.getHistory(userId);
+            return accounts;
+        }
+        return null;
     }
 
 }

@@ -14,19 +14,45 @@ import java.util.List;
 public interface Dao extends CrudRepository<Account,String>, JpaSpecificationExecutor {
 
 
+    @Transactional
+    @Modifying
+    @Query(value = "update accounts set user = ?2, selled=1 where id= ?1 ",nativeQuery = true)
+    int record(int id, String user);
+
+    @Query(value = "select id,detail,price,pricesell,password ,email, '' as createtime,'' as  updatetime , status, '' as user, '' as pid  from accounts where id = ?1 and selled = 0",nativeQuery = true)
+    Account getEmail(int id);
+
+    @Query(value = "select user from users where user = ?1 and password =?2 ",nativeQuery = true)
+    String check(String user, String password);
+
+    @Query(value = "select detail from accounts where detail LIKE :name  and selled = 0 order by price ",nativeQuery = true)
+    List<String> getHeros(String name);
+
+    @Query(value = "select id,detail,price,pricesell,password ,email, '' as createtime,'' as  updatetime , status, '' as user, '' as pid  from accounts where detail LIKE ?1 and  detail LIKE ?2  and selled = 0 and status = ?3 order by price desc ",nativeQuery = true)
+    List<Account> getShow2(String name, String name2, int status);
+
+    @Query(value = "select id,detail,price,pricesell,'' as password ,'' as email, '' as createtime,'' as  updatetime , status, '' as user, '' as pid  from accounts where detail LIKE ?1 and selled = 0 and status =?2 order by price desc",nativeQuery = true)
+    List<Account> getShow(String name, int status);
+
+    @Query(value = "select id,detail,price,pricesell,password ,email, '' as createtime,'' as  updatetime , status, '' as user, '' as pid  from accounts where detail LIKE ?1 and  detail LIKE ?2  and selled = 0  order by price desc",nativeQuery = true)
+    List<Account> getShow2_all(String name, String name2);
+
+    @Query(value = "select id,detail,price,pricesell,'' as password ,'' as email, '' as createtime,'' as  updatetime , '' as status, '' as user, '' as pid  from accounts where detail LIKE ?1 and selled = 0  order by price desc",nativeQuery = true)
+    List<Account> getShow_all(String name);
+
     @Query(value = "select * from accounts where email = ?1",nativeQuery = true)
     Account getAccountByEmail(String email);
 
     @Query(value = "select * from accounts_android where email = ?1",nativeQuery = true)
     Account getAccountByEmail_android(String email);
 
-    @Query(value = "select * from emails where status = 2 and  TIMESTAMPDIFF(SECOND ,CONCAT( CURDATE(),' 00:00:00'),updatetime) <= 0 LIMIT 1",nativeQuery = true)
+    @Query(value = "select *,'' as price, '' as pricesell, '' as user from emails where status = 2 and  TIMESTAMPDIFF(SECOND ,CONCAT( CURDATE(),' 00:00:00'),updatetime) <= 0 LIMIT 1",nativeQuery = true)
     Account getIniAccount();
 
     @Query(value = "select * from emails_android where status = 2 and  TIMESTAMPDIFF(SECOND ,CONCAT( CURDATE(),' 00:00:00'),updatetime) <= 0 LIMIT 1",nativeQuery = true)
     Account getIniAccount_android();
 
-    @Query(value = "select * from emails where status = 0 LIMIT 1",nativeQuery = true)
+    @Query(value = "select *,'' as price, '' as pricesell, '' as user  from emails where status = 0 LIMIT 1",nativeQuery = true)
     Account getData();
 
     @Query(value = "select * from emails_android where status = 0 LIMIT 1",nativeQuery = true)
@@ -62,6 +88,11 @@ public interface Dao extends CrudRepository<Account,String>, JpaSpecificationExe
 
     @Transactional
     @Modifying
+    @Query(value = "update emails set status = ?2 where email= ?1 ",nativeQuery = true)
+    int updateStatusByEmail(String email, int status);
+
+    @Transactional
+    @Modifying
     @Query(value = "update emails_android set status = ?2 where id= ?1 ",nativeQuery = true)
     int updateStatus_hs(int id, int status);
 
@@ -77,13 +108,13 @@ public interface Dao extends CrudRepository<Account,String>, JpaSpecificationExe
 
     @Transactional
     @Modifying
-    @Query(value = "INSERT INTO accounts (email, password, detail, pid) VALUES (?1, ?2, ?3, ?4)",nativeQuery = true)
-    int saveAccount(String email, String password, String detail, String pid);
+    @Query(value = "INSERT INTO accounts (email, password, detail, pid,status) VALUES (?1, ?2, ?3, ?4,?5)",nativeQuery = true)
+    int saveAccount(String email, String password, String detail, String pid, int status);
 
     @Transactional
     @Modifying
-    @Query(value = "UPDATE accounts set email = ?1, password = ?2, detail = ?3, pid = ?4 where email = ?1",nativeQuery = true)
-    int updateAccount(String email, String password, String detail, String pid);
+    @Query(value = "UPDATE accounts set price=null ,pricesell=null ,email = ?1, password = ?2, detail = ?3, pid = ?4, status=?5 where email = ?1",nativeQuery = true)
+    int updateAccount(String email, String password, String detail, String pid, int status);
 
     @Transactional
     @Modifying
@@ -119,4 +150,7 @@ public interface Dao extends CrudRepository<Account,String>, JpaSpecificationExe
     @Modifying
     @Query(value = "UPDATE emails_android SET updatetime = ?2 where id= ?1 ",nativeQuery = true)
     int setUpdateTime_android(int id, String updatetime);
+
+    @Query(value = "select id,detail,price,pricesell,'' as password ,email, '' as createtime, updatetime , status, user, '' as pid  from accounts where user = ?1 and selled = 1",nativeQuery = true)
+    List<Account> getHistory(String user);
 }
