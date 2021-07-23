@@ -151,6 +151,6 @@ public interface Dao extends CrudRepository<Account,String>, JpaSpecificationExe
     @Query(value = "UPDATE emails_android SET updatetime = ?2 where id= ?1 ",nativeQuery = true)
     int setUpdateTime_android(int id, String updatetime);
 
-    @Query(value = "select id,detail,price,pricesell,'' as password ,email, '' as createtime, updatetime , status, user, '' as pid  from accounts where user = ?1 and selled = 1",nativeQuery = true)
+    @Query(value = "select id,detail,price,pricesell,'' as password ,email, '' as createtime, updatetime , status, user, '' as pid  from accounts where user = ?1 and selled = 1 order by updatetime DESC",nativeQuery = true)
     List<Account> getHistory(String user);
 }
